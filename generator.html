@@ -192,16 +192,19 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + API_KEY
                 },
-                body: JSON.stringify({
-                    input_value: urlInput,
-                    input_type: "chat",
-                    output_type: "chat",
-                    tweaks: {
-                        "AutomatedEmailSender-Ad97v": {
-                            "receiver_user": emailInput
-                        }
-                    }
-                })
+               body: JSON.stringify({
+            input_value: urlInput,
+            input_type: "chat",
+            output_type: "chat",
+            tweaks: {
+                "SMTP Email Delivery": {
+                    "receiver_email": emailInput
+                },
+                "SMTPEmailDelivery": {
+                    "receiver_email": emailInput
+                }
+            }
+        })
             });
 
             const data = await response.json();
