@@ -62,7 +62,7 @@
             font-weight: 500;
         }
 
-        input[type="text"] {
+        input[type="text"], input[type="email"] {
             width: 100%;
             padding: 12px 16px;
             background-color: var(--card-bg);
@@ -74,7 +74,7 @@
             transition: border-color 0.2s;
         }
 
-        input[type="text"]:focus {
+        input[type="text"]:focus, input[type="email"]:focus {
             outline: none;
             border-color: var(--primary-color);
         }
@@ -89,6 +89,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s;
+            margin-top: 10px;
         }
 
         .btn:hover {
@@ -140,12 +141,17 @@
     </div>
     
     <p class="description">
-        Paste any YouTube video link below. Our AI agent will extract the transcript, design a short-form content strategy, and fire it directly to your email inbox.
+        Paste any YouTube video link and enter your email destination below. Our AI agent will extract the transcript, design a short-form content strategy, and fire it directly to your chosen email inbox.
     </p>
 
     <div class="input-group">
         <label for="youtubeUrl">Enter YouTube Video URL:</label>
         <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
+    </div>
+
+    <div class="input-group">
+        <label for="userEmail">Enter Destination Email Address:</label>
+        <input type="email" id="userEmail" placeholder="yourname@example.com">
     </div>
 
     <button id="generateBtn" class="btn" onclick="generateStrategy()">Generate & Send Strategy</button>
@@ -154,13 +160,14 @@
 </div>
 
 <script>
-    // --- CONFIGURATION ---
-    // Change this URL once you deploy Langflow to a public server (like Hugging Face or Render)
-    const BACKEND_URL = "https://harshitkabba-viral-shorts-backend.hf.space/api/v1/run/1efa6577-ef8b-4fad-8f60-a8d8fcbdcdf4";
+    // --- HOSTING CONFIGURATION ---
+    // Make sure your exact Hugging Face flow identifier token is plugged here!
+    const BACKEND_URL = "https://harshitkabba-viral-shorts-backend.hf.space/api/v1/run/YOUR_ACTIVE_FLOW_ID_HERE";
     const API_KEY = "sk-TcTDnC36dZLj8GqUl0HkCyBCb6qPBcisOEtBLiMyLYE"; 
 
     async function generateStrategy() {
         const urlInput = document.getElementById('youtubeUrl').value.trim();
+        const emailInput = document.getElementById('userEmail').value.trim();
         const btn = document.getElementById('generateBtn');
         const statusBox = document.getElementById('statusBox');
 
@@ -168,8 +175,12 @@
             showStatus("⚠️ Please enter a valid YouTube URL first!", "error");
             return;
         }
+        if (!emailInput) {
+            showStatus("⚠️ Please enter a target destination email address!", "error");
+            return;
+        }
 
-        // Set Loading State
+        // Set UI Loading State
         btn.disabled = true;
         btn.innerHTML = `<div class="spinner"></div> Processing video transcript...`;
         statusBox.style.display = "none";
@@ -185,7 +196,11 @@
                     input_value: urlInput,
                     input_type: "chat",
                     output_type: "chat",
-                    tweaks: {}
+                    tweaks: {
+                        "SMTPEmailDelivery-xxxx": {
+                            "receiver_user": emailInput
+                        }
+                    }
                 })
             });
 
@@ -195,7 +210,6 @@
                 throw new Error(data.detail || `Server returned status ${response.status}`);
             }
 
-            // Fire Celebration Confetti Balloons!
             confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
             showStatus("💸 Success! Check your email inbox. The complete strategy pack has been delivered.", "success");
 
