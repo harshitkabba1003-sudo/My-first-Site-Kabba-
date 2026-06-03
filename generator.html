@@ -192,17 +192,17 @@
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + API_KEY
                 },
-            body: JSON.stringify({
+           body: JSON.stringify({
             input_value: urlInput,
             input_type: "chat",
             output_type: "chat",
             tweaks: {
                 "SMTP Email Delivery": {
-                    "text": urlInput, // Maps the incoming text stream cleanly
+                    "content_to_send": urlInput,
                     "receiver_email": emailInput
                 },
                 "SMTPEmailDelivery": {
-                    "text": urlInput,
+                    "content_to_send": urlInput,
                     "receiver_email": emailInput
                 }
             }
