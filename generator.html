@@ -162,7 +162,7 @@
 <script>
     // --- HOSTING CONFIGURATION ---
     // Make sure your exact Hugging Face flow identifier token is plugged here!
-    const BACKEND_URL = "https://harshitkabba-viral-shorts-backend.hf.space/api/v1/run/YOUR_ACTIVE_FLOW_ID_HERE";
+    const BACKEND_URL = "https://harshitkabba-viral-shorts-backend.hf.space/flow/1efa6577-ef8b-4fad-8f60-a8d8fcbdcdf4";
     const API_KEY = "sk-TcTDnC36dZLj8GqUl0HkCyBCb6qPBcisOEtBLiMyLYE"; 
 
     async function generateStrategy() {
@@ -197,7 +197,7 @@
                     input_type: "chat",
                     output_type: "chat",
                     tweaks: {
-                        "SMTPEmailDelivery-xxxx": {
+                        "AutomatedEmailSender-Ad97v": {
                             "receiver_user": emailInput
                         }
                     }
