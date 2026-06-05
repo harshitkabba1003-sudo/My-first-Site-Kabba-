@@ -179,7 +179,26 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         const data = await response.json();
         
         // Safely map data nodes through Langflow API schema structures
-        const generatedStrategy = data.outputs[0].outputs[0].results.message.text;
+        // Safely map data nodes through Langflow API schema structures
+        let generatedStrategy = "";
+        try {
+            if (data.outputs && data.outputs[0] && data.outputs[0].outputs && data.outputs[0].outputs[0]) {
+                const nestedOutput = data.outputs[0].outputs[0];
+                if (nestedOutput.results && nestedOutput.results.message && nestedOutput.results.message.text) {
+                    generatedStrategy = nestedOutput.results.message.text;
+                } else if (nestedOutput.artifacts && nestedOutput.artifacts.text) {
+                    generatedStrategy = nestedOutput.artifacts.text;
+                } else if (nestedOutput.messages && nestedOutput.messages[0] && nestedOutput.messages[0].message) {
+                    generatedStrategy = nestedOutput.messages[0].message;
+                }
+            }
+            // Fallback for direct chat output structures
+            if (!generatedStrategy && data.result) {
+                generatedStrategy = data.result;
+            }
+        } catch (e) {
+            console.log("Parsing fallback activated:", e);
+        }
 
         if (generatedStrategy) {
             strategyOutput.innerText = generatedStrategy;
