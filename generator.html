@@ -1,238 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Viral Shorts Strategy Generator</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #0e1117;
-            --card-bg: #161a22;
-            --text-color: #ffffff;
-            --text-muted: #8b949e;
-            --primary-color: #ff4b4b;
-            --primary-hover: #e04343;
-            --border-color: #30363d;
-        }
+document.getElementById('generateBtn').addEventListener('click', async () => {
+    const urlInput = document.getElementById('youtubeUrl').value;
+    const resultContainer = document.getElementById('resultContainer');
+    const strategyOutput = document.getElementById('strategyOutput');
+    const downloadBtn = document.getElementById('downloadBtn');
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .container {
-            max-width: 700px;
-            width: 100%;
-        }
-
-        .title-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .description {
-            color: var(--text-muted);
-            font-size: 1.05rem;
-            line-height: 1.5;
-            margin-bottom: 30px;
-        }
-
-        .input-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 0.95rem;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-
-        input[type="text"], input[type="email"] {
-            width: 100%;
-            padding: 12px 16px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-color);
-            font-size: 1rem;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
-
-        input[type="text"]:focus, input[type="email"]:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: 600;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 10px;
-        }
-
-        .btn:hover {
-            background-color: var(--primary-hover);
-        }
-
-        .status-box {
-            margin-top: 25px;
-            padding: 16px;
-            border-radius: 8px;
-            display: none;
-            font-size: 0.95rem;
-            line-height: 1.4;
-        }
-
-        .status-error {
-            background-color: rgba(248, 81, 73, 0.1);
-            border: 1px solid rgba(248, 81, 73, 0.4);
-            color: #f85149;
-        }
-
-        .status-success {
-            background-color: rgba(56, 139, 253, 0.1);
-            border: 1px solid rgba(56, 139, 253, 0.4);
-            color: #58a6ff;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-</head>
-<body>
-
-<div class="container">
-    <div class="title-container">
-        <span style="font-size: 2.5rem;">🔥</span>
-        <h1 class="title">AI Viral Shorts Strategy Generator</h1>
-    </div>
-    
-    <p class="description">
-        Paste any YouTube video link and enter your email destination below. Our AI agent will extract the transcript, design a short-form content strategy, and fire it directly to your chosen email inbox.
-    </p>
-
-    <div class="input-group">
-        <label for="youtubeUrl">Enter YouTube Video URL:</label>
-        <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=...">
-    </div>
-
-    <div class="input-group">
-        <label for="userEmail">Enter Destination Email Address:</label>
-        <input type="email" id="userEmail" placeholder="yourname@example.com">
-    </div>
-
-    <button id="generateBtn" class="btn" onclick="generateStrategy()">Generate & Send Strategy</button>
-
-    <div id="statusBox" class="status-box"></div>
-</div>
-
-<script>
-    // --- HOSTING CONFIGURATION ---
-    // Make sure your exact Hugging Face flow identifier token is plugged here!
-    const BACKEND_URL = "https://harshitkabba-viral-shorts-backend.hf.space/api/v1/run/1efa6577-ef8b-4fad-8f60-a8d8fcbdcdf4";
-    const API_KEY = "sk-TcTDnC36dZLj8GqUl0HkCyBCb6qPBcisOEtBLiMyLYE"; 
-
-    async function generateStrategy() {
-        const urlInput = document.getElementById('youtubeUrl').value.trim();
-        const emailInput = document.getElementById('userEmail').value.trim();
-        const btn = document.getElementById('generateBtn');
-        const statusBox = document.getElementById('statusBox');
-
-        if (!urlInput) {
-            showStatus("⚠️ Please enter a valid YouTube URL first!", "error");
-            return;
-        }
-        if (!emailInput) {
-            showStatus("⚠️ Please enter a target destination email address!", "error");
-            return;
-        }
-
-        // Set UI Loading State
-        btn.disabled = true;
-        btn.innerHTML = `<div class="spinner"></div> Processing video transcript...`;
-        statusBox.style.display = "none";
-
-        try {
-            const response = await fetch(BACKEND_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + API_KEY
-                },
-           body: JSON.stringify({
-            input_value: urlInput,
-            input_type: "chat",
-            output_type: "chat",
-            tweaks: {
-                "SMTP Email Delivery": {
-                    "content_to_send": urlInput,
-                    "receiver_email": emailInput
-                },
-                "SMTPEmailDelivery": {
-                    "content_to_send": urlInput,
-                    "receiver_email": emailInput
-                }
-            }
-        })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || data.detail) {
-                throw new Error(data.detail || `Server returned status ${response.status}`);
-            }
-
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
-            showStatus("💸 Success! Check your email inbox. The complete strategy pack has been delivered.", "success");
-
-        } catch (error) {
-            showStatus(`❌ Langflow Server Error: ${error.message}`, "error");
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = "Generate & Send Strategy";
-        }
+    if (!urlInput) {
+        alert("Please enter a valid YouTube URL!");
+        return;
     }
 
-    function showStatus(message, type) {
-        const statusBox = document.getElementById('statusBox');
-        statusBox.className = `status-box ${type === 'error' ? 'status-error' : 'status-success'}`;
-        statusBox.innerText = message;
-        statusBox.style.display = "block";
-    }
-</script>
+    // Show loading state, hide previous results
+    resultContainer.style.display = 'block';
+    strategyOutput.innerText = "Analyzing video and generating your viral strategy pack... Please wait.";
+    downloadBtn.style.display = 'none';
 
-</body>
-</html>
+    try {
+        const response = await fetch("https://harshitkabba-viral-shorts-backend.hf.space/api/v1/run/1efa6577-ef8b-44af-8b60-a8d8fcbdcdf4", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                input_value: urlInput,
+                input_type: "chat",
+                output_type: "chat",
+                tweaks: {} // Empty because no email or fields need overriding now!
+            })
+        });
+
+        const data = await response.json();
+        
+        // Extract the generated text from Langflow's standardized response
+        const generatedStrategy = data.outputs[0].outputs[0].results.message.text;
+
+        if (generatedStrategy) {
+            strategyOutput.innerText = generatedStrategy;
+            downloadBtn.style.display = 'inline-block'; // Reveal download button
+            
+            // Configure the download button logic
+            downloadBtn.onclick = () => {
+                const blob = new Blob([generatedStrategy], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'AI_Viral_Shorts_Strategy.txt';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            };
+        } else {
+            strategyOutput.innerText = "Error: Couldn't parse response. Please check your Langflow model settings.";
+        }
+
+    } catch (error) {
+        console.error(error);
+        strategyOutput.innerText = "Langflow Server Error: " + error.message;
+    }
+});
