@@ -24,7 +24,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
                 input_value: urlInput,
                 input_type: "chat",
                 output_type: "chat",
-                tweaks: {} // Empty because no email or fields need overriding now!
+                tweaks: {} 
             })
         });
 
@@ -35,7 +35,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
 
         if (generatedStrategy) {
             strategyOutput.innerText = generatedStrategy;
-            downloadBtn.style.display = 'inline-block'; // Reveal download button
+            downloadBtn.style.display = 'inline-block'; 
             
             // Configure the download button logic
             downloadBtn.onclick = () => {
