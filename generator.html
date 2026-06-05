@@ -178,10 +178,10 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
 
         const data = await response.json();
         
-        // Safely map data nodes through Langflow API schema structures
-        // Safely map data nodes through Langflow API schema structures
+// Safely map data nodes through Langflow API schema structures
         let generatedStrategy = "";
         try {
+            // Check variant 1: Chat Output Node structure
             if (data.outputs && data.outputs[0] && data.outputs[0].outputs && data.outputs[0].outputs[0]) {
                 const nestedOutput = data.outputs[0].outputs[0];
                 if (nestedOutput.results && nestedOutput.results.message && nestedOutput.results.message.text) {
@@ -192,6 +192,30 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
                     generatedStrategy = nestedOutput.messages[0].message;
                 }
             }
+            
+            // Check variant 2: Alternative array structure formatting
+            if (!generatedStrategy && data.messages && data.messages[0]) {
+                generatedStrategy = data.messages[0].message || data.messages[0].text;
+            }
+
+            // Check variant 3: Direct baseline fallback extraction parsing
+            if (!generatedStrategy && data.result) {
+                generatedStrategy = data.result;
+            }
+            
+            // Check variant 4: Stringified JSON search emergency fallback
+            if (!generatedStrategy) {
+                const searchStr = JSON.stringify(data);
+                const match = searchStr.match(/"text"\s*:\s*"([^"]+)"/);
+                if (match && match[1]) {
+                    generatedStrategy = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+                }
+            }
+        } catch (e) {
+            console.log("Parsing fallback activated:", e);
+        }
+
+        if (generatedStrategy) {
             // Fallback for direct chat output structures
             if (!generatedStrategy && data.result) {
                 generatedStrategy = data.result;
