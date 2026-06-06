@@ -180,23 +180,31 @@
             btn.disabled = true;
             btn.style.background = "#4b5563";
 
-            try {
-                const response = await fetch(`http://127.0.0.1:8000/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`);
-                if (!response.ok) throw new Error("Backend failed.");
+          try {
+        // 1. Force the exact URL of your Hugging Face Space backend
+        const hfSpaceUrl = "https://harshitkabba-viral-shorts-backend.hf.space"; 
 
-                const blob = await response.blob();
-                const blobUrl = window.URL.createObjectURL(blob);
-                const downloadLink = document.createElement('a');
-                downloadLink.href = blobUrl;
-                downloadLink.download = "viral_short_clip.mp4";
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                downloadLink.remove();
-                
-                status.textContent = "✅ Success! Video short downloaded.";
-            } catch (err) {
-                status.textContent = "❌ Error. Is 'python server.py' running in your terminal?";
-            } finally {
+        // 2. Build the absolute direct connection path to your FastAPI script
+        const targetUrl = `${hfSpaceUrl}/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`;
+
+        status.textContent = "⏳ Slicing video frames directly on Hugging Face cloud servers...";
+
+        const response = await fetch(targetUrl);
+        if (!response.ok) throw new Error("Cloud downloader script dropped connection.");
+
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = blobUrl;
+        downloadLink.download = "viral_short_clip.mp4";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        
+        status.textContent = "✅ Success! Sliced clip saved to your machine.";
+    } catch (err) {
+        status.textContent = "❌ Connection failed. Check your Hugging Face space logs for runtime build conflicts.";
+    } finally {
                 btn.disabled = false;
                 btn.style.background = "#ff4a4a";
             }
