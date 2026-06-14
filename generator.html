@@ -233,32 +233,38 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     resultContainer.style.display = 'block';
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
-
-    try {
+try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
         const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
         
-        // Direct, correct standalone endpoint path mapping
+        // Target endpoint configuration
         const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+
+        // 🎯 Restructured JSON body matching Langflow's exact required payload schema mapping
+        const requestPayload = {
+            inputs: {
+                "input_value": urlInput
+            },
+            input_type: "chat",
+            output_type: "chat",
+            tweaks: {}
+        };
+
+        console.log("Sending payload schema mapping structure:", requestPayload);
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-           body: JSON.stringify({
-                input_value: urlInput, // Standard modern Langflow endpoint key
-                text: urlInput,        // Text/Chat input fallback key
-                input_type: "chat",
-                output_type: "chat",
-                tweaks: {} 
-            })
+            body: JSON.stringify(requestPayload)
         });
 
-        if (response.status === 405 || response.status === 404) {
-            console.warn(`Endpoint execution status ${response.status}. Trying alternate processing path...`);
+        // 🔄 AUTOMATIC ROUTE FALLBACK: Executed instantly if the /run/ endpoint fails
+        if (response.status === 405 || response.status === 404 || response.status === 400) {
+            console.warn(`Primary route tracking status ${response.status}. Forcing process fallback processing directory layout...`);
             
             const alternateEndpoint = `${HF_SPACE_URL}/api/v1/process/${FLOW_ID}`;
             const fallbackResponse = await fetch(alternateEndpoint, {
@@ -266,12 +272,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
                 headers: { 
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    input_value: urlInput,
-                    input_type: "chat",
-                    output_type: "chat",
-                    tweaks: {}
-                })
+                body: JSON.stringify(requestPayload)
             });
 
             if (!fallbackResponse.ok) throw new Error(`Gateway Verification Failed: ${fallbackResponse.status}`);
