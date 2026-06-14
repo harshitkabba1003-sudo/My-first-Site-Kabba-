@@ -137,7 +137,8 @@
     </div>
 
     <button id="generateBtn" class="btn">Generate Strategy Pack</button>
-<div id="resultContainer" style="display: none;">
+
+    <div id="resultContainer" style="display: none;">
         <h3>Generated Strategy Pack:</h3>
         <pre id="strategyOutput"></pre>
         <button id="downloadBtn" class="download-btn" style="display: none;">📩 Download Strategy Framework (.txt)</button>
@@ -163,9 +164,8 @@
 
         <script>
         async function downloadClippedVideo() {
-            // This targets your exact input field on line 136 using its ID 'youtubeUrl'
             const videoUrlInput = document.getElementById('youtubeUrl'); 
-            const videoUrl = videoUrlInput ? videoUrlInput.value : '';
+            const videoUrl = videoUrlInput ? videoUrlInput.value.trim() : '';
             const start = document.getElementById('clipper-start').value;
             const end = document.getElementById('clipper-end').value;
             const status = document.getElementById('clipper-status');
@@ -180,8 +180,7 @@
             btn.disabled = true;
             btn.style.background = "#4b5563";
 
-      try {
-                // Dynamically passes video keys as a secure JSON payload matching your server.py structure
+            try {
                 const response = await fetch("https://my-first-site-kabba.onrender.com/api/cut-clip", {
                     method: 'POST',
                     headers: {
@@ -204,18 +203,19 @@
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 downloadLink.remove();
+                window.URL.revokeObjectURL(blobUrl);
                 
                 status.textContent = "✅ Success! Video short downloaded.";
             } catch (err) {
-                status.textContent = "❌ Error. Is 'python server.py' running in your terminal?";
-            }  finally {
+                status.textContent = "❌ Error. Local or cloud clipper server dropped connection.";
+                console.error(err);
+            } finally {
                 btn.disabled = false;
                 btn.style.background = "#ff4a4a";
             }
         }
         </script>
-        </div> ```
-
+    </div>
 </div>
 
 <script>
@@ -230,23 +230,23 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         return;
     }
 
-    // Clear previous results and show loading state
     resultContainer.style.display = 'block';
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
-// 🟢 PASTE THIS CODE INSTEAD:
+
     try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
         const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
-        const strategyApiEndpoint = `${HF_SPACE_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
+        
+        // Direct, correct standalone endpoint path mapping
+        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "x-requested-with": "XMLHttpRequest"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 input_value: urlInput,
@@ -257,14 +257,13 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         });
 
         if (response.status === 405 || response.status === 404) {
-            console.warn(`Endpoint returned status ${response.status}. Initiating direct fallback path...`);
+            console.warn(`Endpoint execution status ${response.status}. Trying alternate processing path...`);
             
-            const alternateEndpoint = `${HF_SPACE_URL}/proxy/api/v1/process/${FLOW_ID}`;
+            const alternateEndpoint = `${HF_SPACE_URL}/api/v1/process/${FLOW_ID}`;
             const fallbackResponse = await fetch(alternateEndpoint, {
                 method: "POST",
                 headers: { 
-                    "Content-Type": "application/json",
-                    "x-requested-with": "XMLHttpRequest"
+                    "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
                     input_value: urlInput,
@@ -280,6 +279,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
             if (!response.ok) throw new Error(`Server returned status code: ${response.status}`);
             var data = await response.json();
         }
+        
         console.log("Raw Response Received Object Structure:", data);
         
         let generatedStrategy = "";
@@ -315,7 +315,7 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
 
         if (generatedStrategy) {
             strategyOutput.innerText = generatedStrategy;
-            downloadBtn.style.display = 'inline-block'; // Show green download button
+            downloadBtn.style.display = 'inline-block';
             
             downloadBtn.onclick = () => {
                 const blob = new Blob([generatedStrategy], { type: 'text/plain' });
