@@ -240,10 +240,12 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         
         // Stitches your live permanent LocalTunnel domain prefix dynamically
         // 🌐 Network Gateway Configuration Layer
-        const STRATEGY_SERVER_URL = "https://harshitkabba-viral-shorts-backend.hf.space"; // Use your exact copied Direct URL here!
+       // 🌐 Public Cloud Gateway Configuration Layer
+        const STRATEGY_SERVER_URL = "https://harshitkabba-viral-shorts-backend.hf.space"; 
         const FLOW_ID = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
 
-        const strategyApiEndpoint = `${STRATEGY_SERVER_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+        // 🎯 The exact URL structure Hugging Face requires to hit Langflow's API backend
+        const strategyApiEndpoint = `${STRATEGY_SERVER_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
