@@ -181,7 +181,7 @@
             btn.style.background = "#4b5563";
 
       try {
-                const response = await fetch(`http://127.0.0.1:8000/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`);
+                const response = await fetch(`http://127.0.0.1:5000/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`);
                 if (!response.ok) throw new Error("Backend failed.");
 
                 const blob = await response.blob();
