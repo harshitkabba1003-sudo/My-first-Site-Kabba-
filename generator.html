@@ -243,13 +243,16 @@ try {
         const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
 
         // 🎯 Restructured JSON body matching Langflow's exact required payload schema mapping
+        // 🎯 The exact payload mapping required to fill out your specific YouTube node directly
         const requestPayload = {
-            inputs: {
-                "input_value": urlInput
-            },
+            input_value: urlInput,
             input_type: "chat",
             output_type: "chat",
-            tweaks: {}
+            tweaks: {
+                "YouTubeTranscripts-ExtractspokencontentfromYouTubevideoswithmultipleoutputoptions.-1.6.0": {
+                    "url": urlInput
+                }
+            }
         };
 
         console.log("Sending payload schema mapping structure:", requestPayload);
