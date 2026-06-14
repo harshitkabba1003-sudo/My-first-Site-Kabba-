@@ -248,8 +248,9 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                input_value: urlInput,
+           body: JSON.stringify({
+                input_value: urlInput, // Standard modern Langflow endpoint key
+                text: urlInput,        // Text/Chat input fallback key
                 input_type: "chat",
                 output_type: "chat",
                 tweaks: {} 
