@@ -234,23 +234,19 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     resultContainer.style.display = 'block';
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
-
+// 🟢 PASTE THIS CODE INSTEAD:
     try {
         console.log("Dispatching URL payload to backend space...");
         
-        // Stitches your live permanent LocalTunnel domain prefix dynamically
-        // 🌐 Network Gateway Configuration Layer
-       // 🌐 Public Cloud Gateway Configuration Layer
-        const STRATEGY_SERVER_URL = "https://harshitkabba-viral-shorts-backend.hf.space"; 
-        const FLOW_ID = "573a9039-3060-4c1b-b267-5edc4ce9db74";
-
-      // Stitches into: https://.../proxy/api/v1/run/...
-const strategyApiEndpoint = `${STRATEGY_SERVER_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
+        const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
+        const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
+        const strategyApiEndpoint = `${HF_SPACE_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "x-requested-with": "XMLHttpRequest"
             },
             body: JSON.stringify({
                 input_value: urlInput,
@@ -260,11 +256,30 @@ const strategyApiEndpoint = `${STRATEGY_SERVER_URL}/proxy/api/v1/run/${FLOW_ID}?
             })
         });
 
-        if (!response.ok) {
-            throw new Error(`Server returned status code: ${response.status}`);
-        }
+        if (response.status === 405 || response.status === 404) {
+            console.warn(`Endpoint returned status ${response.status}. Initiating direct fallback path...`);
+            
+            const alternateEndpoint = `${HF_SPACE_URL}/proxy/api/v1/process/${FLOW_ID}`;
+            const fallbackResponse = await fetch(alternateEndpoint, {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "x-requested-with": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    input_value: urlInput,
+                    input_type: "chat",
+                    output_type: "chat",
+                    tweaks: {}
+                })
+            });
 
-        const data = await response.json();
+            if (!fallbackResponse.ok) throw new Error(`Gateway Verification Failed: ${fallbackResponse.status}`);
+            var data = await fallbackResponse.json();
+        } else {
+            if (!response.ok) throw new Error(`Server returned status code: ${response.status}`);
+            var data = await response.json();
+        }
         console.log("Raw Response Received Object Structure:", data);
         
         let generatedStrategy = "";
