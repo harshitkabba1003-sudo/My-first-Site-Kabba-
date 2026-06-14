@@ -181,8 +181,20 @@
             btn.style.background = "#4b5563";
 
       try {
-                const response = await fetch(`http://127.0.0.1:5000/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`);
-                if (!response.ok) throw new Error("Backend failed.");
+                // Dynamically passes video keys as a secure JSON payload matching your server.py structure
+                const response = await fetch("https://my-first-site-kabba.onrender.com/api/cut-clip", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        youtube_url: videoUrl,
+                        start: start,
+                        end: end
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Cloud backend video generation failed.");
 
                 const blob = await response.blob();
                 const blobUrl = window.URL.createObjectURL(blob);
