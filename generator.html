@@ -161,11 +161,9 @@
             <p id="clipper-status" style="margin-top: 8px; font-size: 13px; color: #fbbf24; margin-bottom: 0; font-weight: 500; text-align: center;"></p>
         </div>
 
-       <script>
-        // 🌐 Declare your local Flask backend configuration cleanly
-        const VIDEO_SERVER_URL = "http://127.0.0.1:5000";
-
+        <script>
         async function downloadClippedVideo() {
+            // This targets your exact input field on line 136 using its ID 'youtubeUrl'
             const videoUrlInput = document.getElementById('youtubeUrl'); 
             const videoUrl = videoUrlInput ? videoUrlInput.value : '';
             const start = document.getElementById('clipper-start').value;
@@ -182,21 +180,9 @@
             btn.disabled = true;
             btn.style.background = "#4b5563";
 
-            try {
-                // Modified to pass clean JSON keys matching your server.py expectations
-                const response = await fetch(`${VIDEO_SERVER_URL}/api/cut-clip`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        youtube_url: videoUrl,
-                        start: start,
-                        end: end
-                    })
-                });
-
-                if (!response.ok) throw new Error("Backend processing failed.");
+      try {
+                const response = await fetch(`http://127.0.0.1:8000/api/cut?url=${encodeURIComponent(videoUrl)}&start=${start}&end=${end}`);
+                if (!response.ok) throw new Error("Backend failed.");
 
                 const blob = await response.blob();
                 const blobUrl = window.URL.createObjectURL(blob);
@@ -206,13 +192,11 @@
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 downloadLink.remove();
-                window.URL.revokeObjectURL(blobUrl);
                 
                 status.textContent = "✅ Success! Video short downloaded.";
             } catch (err) {
-                console.error("Clipping runtime error:", err);
                 status.textContent = "❌ Error. Is 'python server.py' running in your terminal?";
-            } finally {
+            }  finally {
                 btn.disabled = false;
                 btn.style.background = "#ff4a4a";
             }
@@ -242,25 +226,19 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     try {
         console.log("Dispatching URL payload to backend space...");
       // Replace your fetch line target string with the universal runtime path!
-// 🌐 Base URL Layer — Update this variable whenever you run a new tunnel!
-    const STRATEGY_SERVER_URL = "https://your-active-tunnel.ngrok-free.app"; // Replace with your active Ngrok/LocalTunnel link
-    const FLOW_ID = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
-
-    // Dynamically stitches your clean endpoint variable together
-    const strategyApiEndpoint = `${STRATEGY_SERVER_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
-
-    const response = await fetch(strategyApiEndpoint, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            input_value: urlInput,
-            input_type: "chat",
-            output_type: "chat",
-            tweaks: {}
-        })
-    });
+const response = await fetch("http://localhost:7860/api/v1/run/bc0bbd04-beea-47b3-a329-5f81e319eb02"
+, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        input_value: urlInput,
+        input_type: "chat",
+        output_type: "chat",
+        tweaks: {} 
+    })
+});
 
         if (!response.ok) {
             throw new Error(`Server returned status code: ${response.status}`);
