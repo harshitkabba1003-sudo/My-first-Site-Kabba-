@@ -239,40 +239,58 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
 
-  try {
-        console.log("Dispatching URL payload to backend space...");
+ try {
+        console.log("Dispatching payload to Langflow runtime engine...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
         const FLOW_ID      = "87d3dbaf-df3b-41d2-9a1f-0a1a6f3e71ee";
         
-        // 🎯 Direct endpoint targeting the system's runtime engine
+        // 🎯 Direct cloud port mapping endpoint structure
         const strategyApiEndpoint = `${HF_SPACE_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
 
+        const manualText = document.getElementById('manualTranscript') ? document.getElementById('manualTranscript').value.trim() : '';
+
+        // 📦 The absolute payload layout structure that handles both URLs and raw transcript data text
         const requestPayload = {
-            input_value: urlInput,
+            input_value: manualText ? "Manual text processing triggered." : urlInput,
             input_type: "chat",
             output_type: "chat",
-            tweaks: {}
+            tweaks: {
+                "ChatInput-9ms": {
+                    "input_value": manualText ? manualText : urlInput
+                }
+            }
         };
 
-        console.log("Submitting structured payload layout to endpoint:", strategyApiEndpoint);
+        console.log("Submitting unified payload configuration layout:", requestPayload);
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
-            mode: "cors", // 👈 Explicitly force Cross-Origin Resource Sharing protocols
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json",
-                "x-requested-with": "XMLHttpRequest" // 👈 Bypasses the proxy gateway preflight block completely
+                "x-requested-with": "XMLHttpRequest" // 👈 Safeguards the HTTP POST verb across the gateway
             },
             body: JSON.stringify(requestPayload)
         });
 
-        if (!response.ok) {
-            throw new Error(`Server returned status code: ${response.status}`);
-        }
+        // 🔄 EMERGENCY FALLBACK ROUTE: Bypasses the proxy wrapper immediately if Hugging Face rejects the route layout
+        if (response.status === 405 || response.status === 404) {
+            console.warn(`Primary route path returned ${response.status}. Attempting direct processing container access...`);
+            const directEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+            
+            const fallbackResponse = await fetch(directEndpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(requestPayload)
+            });
 
-        const data = await response.json();
+            if (!fallbackResponse.ok) throw new Error(`Gateway Verification Failed: ${fallbackResponse.status}`);
+            var data = await fallbackResponse.json();
+        } else {
+            if (!response.ok) throw new Error(`Server returned status code: ${response.status}`);
+            var data = await response.json();
+        }
+        
         console.log("Raw Response Received Object Structure:", data);
         
         let generatedStrategy = "";
