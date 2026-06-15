@@ -233,16 +233,16 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     resultContainer.style.display = 'block';
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
-try {
+
+    try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
         const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
         
-        // 🎯 Using exclusively the supported, modern cloud-native /run endpoint
-        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+        // 🎯 FIXED PATH: Appends '/proxy' to securely map request headers into the HF Docker container port
+        const strategyApiEndpoint = `${HF_SPACE_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
 
-        // 📦 Correct modern Langflow nested payload schema structure
         const requestPayload = {
             input_value: urlInput,
             input_type: "chat",
@@ -250,7 +250,7 @@ try {
             tweaks: {}
         };
 
-        console.log("Submitting structured payload layout:", requestPayload);
+        console.log("Submitting structured payload layout to endpoint:", strategyApiEndpoint);
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
@@ -269,7 +269,6 @@ try {
         
         let generatedStrategy = "";
 
-        // Look through Langflow's nested output object paths
         if (data.outputs && data.outputs[0] && data.outputs[0].outputs && data.outputs[0].outputs[0]) {
             const nested = data.outputs[0].outputs[0];
             if (nested.results && nested.results.message && nested.results.message.text) {
@@ -281,7 +280,6 @@ try {
             }
         }
         
-        // Fallbacks
         if (!generatedStrategy && data.messages && data.messages[0]) {
             generatedStrategy = data.messages[0].message || data.messages[0].text;
         }
@@ -289,7 +287,6 @@ try {
             generatedStrategy = data.result;
         }
         
-        // Emergency regex parsing string search
         if (!generatedStrategy) {
             const dumpedText = JSON.stringify(data);
             const textMatch = dumpedText.match(/"text"\s*:\s*"([^"]+)"/);
