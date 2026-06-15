@@ -237,25 +237,21 @@ try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
-        const FLOW_ID      = "0ffd0b9b-2358-41ca-8107-f4f8ee35f282";
+        const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
         
-        // Target endpoint configuration
-        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+        // Use the universal API processing route wrapper directly
+        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/process/${FLOW_ID}`;
 
-        // 🎯 Restructured JSON body matching Langflow's exact required payload schema mapping
-        // 🎯 The exact payload mapping required to fill out your specific YouTube node directly
+       // 🎯 Standardized cloud structure layout
         const requestPayload = {
             input_value: urlInput,
             input_type: "chat",
             output_type: "chat",
             tweaks: {
-                "YouTubeTranscripts-ExtractspokencontentfromYouTubevideoswithmultipleoutputoptions.-1.6.0": {
-                    "url": urlInput
-                }
+                "chat_input_key": "url",
+                "text_input_key": "url"
             }
         };
-
-        console.log("Sending payload schema mapping structure:", requestPayload);
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
@@ -265,23 +261,23 @@ try {
             body: JSON.stringify(requestPayload)
         });
 
-        // 🔄 AUTOMATIC ROUTE FALLBACK: Executed instantly if the /run/ endpoint fails
-        if (response.status === 405 || response.status === 404 || response.status === 400) {
-            console.warn(`Primary route tracking status ${response.status}. Forcing process fallback processing directory layout...`);
-            
-            const alternateEndpoint = `${HF_SPACE_URL}/api/v1/process/${FLOW_ID}`;
-            const fallbackResponse = await fetch(alternateEndpoint, {
+        if (!response.ok) {
+            // Check for alternative route path matching automatically
+            const backupEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
+            const backupResponse = await fetch(backupEndpoint, {
                 method: "POST",
-                headers: { 
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(requestPayload)
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    inputs: { "input_value": urlInput },
+                    input_type: "chat",
+                    output_type: "chat",
+                    tweaks: {}
+                })
             });
-
-            if (!fallbackResponse.ok) throw new Error(`Gateway Verification Failed: ${fallbackResponse.status}`);
-            var data = await fallbackResponse.json();
+            
+            if (!backupResponse.ok) throw new Error(`Gateway Verification Failed: ${backupResponse.status}`);
+            var data = await backupResponse.json();
         } else {
-            if (!response.ok) throw new Error(`Server returned status code: ${response.status}`);
             var data = await response.json();
         }
         
