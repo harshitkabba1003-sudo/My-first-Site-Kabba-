@@ -234,13 +234,13 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     strategyOutput.innerText = "Analyzing video transcript data and structuring your viral template patterns... Please wait.";
     downloadBtn.style.display = 'none';
 
-    try {
+  try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
         const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
         
-        // 🎯 FIXED PATH: Appends '/proxy' to securely map request headers into the HF Docker container port
+        // 🎯 Direct endpoint targeting the system's runtime engine
         const strategyApiEndpoint = `${HF_SPACE_URL}/proxy/api/v1/run/${FLOW_ID}?as_component=false`;
 
         const requestPayload = {
@@ -254,12 +254,15 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
+            mode: "cors", // 👈 Explicitly force Cross-Origin Resource Sharing protocols
             headers: {
                 "Content-Type": "application/json",
-                "x-requested-with": "XMLHttpRequest" // 👈 FORCES HUGGING FACE PROXY TO TRANSMIT HEADERS CLEANLY
+                "Accept": "application/json",
+                "x-requested-with": "XMLHttpRequest" // 👈 Bypasses the proxy gateway preflight block completely
             },
             body: JSON.stringify(requestPayload)
         });
+
         if (!response.ok) {
             throw new Error(`Server returned status code: ${response.status}`);
         }
