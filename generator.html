@@ -237,21 +237,20 @@ try {
         console.log("Dispatching URL payload to backend space...");
         
         const HF_SPACE_URL = "https://harshitkabba-viral-shorts-backend.hf.space";
-        const FLOW_ID      = "6f93313f-3420-4810-9018-41c91dd63826";
+        const FLOW_ID      = "bc0bbd04-beea-47b3-a329-5f81e319eb02";
         
-        // Use the universal API processing route wrapper directly
-        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/process/${FLOW_ID}`;
+        // 🎯 Using exclusively the supported, modern cloud-native /run endpoint
+        const strategyApiEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
 
-       // 🎯 Standardized cloud structure layout
+        // 📦 Correct modern Langflow nested payload schema structure
         const requestPayload = {
             input_value: urlInput,
             input_type: "chat",
             output_type: "chat",
-            tweaks: {
-                "chat_input_key": "url",
-                "text_input_key": "url"
-            }
+            tweaks: {}
         };
+
+        console.log("Submitting structured payload layout:", requestPayload);
 
         const response = await fetch(strategyApiEndpoint, {
             method: "POST",
@@ -262,25 +261,10 @@ try {
         });
 
         if (!response.ok) {
-            // Check for alternative route path matching automatically
-            const backupEndpoint = `${HF_SPACE_URL}/api/v1/run/${FLOW_ID}?as_component=false`;
-            const backupResponse = await fetch(backupEndpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    inputs: { "input_value": urlInput },
-                    input_type: "chat",
-                    output_type: "chat",
-                    tweaks: {}
-                })
-            });
-            
-            if (!backupResponse.ok) throw new Error(`Gateway Verification Failed: ${backupResponse.status}`);
-            var data = await backupResponse.json();
-        } else {
-            var data = await response.json();
+            throw new Error(`Server returned status code: ${response.status}`);
         }
-        
+
+        const data = await response.json();
         console.log("Raw Response Received Object Structure:", data);
         
         let generatedStrategy = "";
