@@ -136,6 +136,11 @@
         <input type="text" id="youtubeUrl" placeholder="https://youtu.be/..." required>
     </div>
 
+    <div class="input-group" style="margin-top: 20px;">
+        <label for="manualTranscript" style="color: #fbbf24;">📋 Transcript Data Source Fallback (Paste Text Here if URL Fails):</label>
+        <textarea id="manualTranscript" placeholder="If the automated link scraping component hits a technical block, copy the transcript text from YouTube and paste it here directly to process..." style="width: 100%; height: 150px; padding: 12px; background: #222227; border: 1px solid #33333c; border-radius: 6px; color: #fff; font-family: 'Segoe UI', sans-serif; font-size: 0.95rem; line-height: 1.5; box-sizing: border-box; resize: vertical;"></textarea>
+    </div>
+
     <button id="generateBtn" class="btn">Generate Strategy Pack</button>
 
     <div id="resultContainer" style="display: none;">
